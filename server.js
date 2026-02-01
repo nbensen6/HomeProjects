@@ -2,14 +2,20 @@ const express = require('express');
 const path = require('path');
 const Database = require('better-sqlite3');
 const fs = require('fs');
+const multer = require('multer');
+const sharp = require('sharp');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Ensure data directory exists
 const dataDir = process.env.DATA_DIR || './data';
+const uploadsDir = path.join(dataDir, 'uploads');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
+}
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Initialize SQLite database
@@ -34,20 +40,63 @@ db.exec(`
     status TEXT DEFAULT 'pending',
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slot_id TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    original_name TEXT,
+    uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 `);
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only images are allowed.'));
+    }
+  }
+});
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve uploaded images
+app.use('/uploads', express.static(uploadsDir));
+
 // API Routes
 
-// Get all progress data
+// Get all progress data including photos
 app.get('/api/progress', (req, res) => {
   try {
     const checklist = db.prepare('SELECT id, checked FROM checklist_items').all();
     const notes = db.prepare('SELECT id, content FROM notes').all();
     const statuses = db.prepare('SELECT id, status FROM project_status').all();
+    const photos = db.prepare('SELECT id, slot_id, filename, original_name, uploaded_at FROM photos ORDER BY uploaded_at DESC').all();
+
+    // Group photos by slot
+    const photosBySlot = photos.reduce((acc, photo) => {
+      if (!acc[photo.slot_id]) {
+        acc[photo.slot_id] = [];
+      }
+      acc[photo.slot_id].push({
+        id: photo.id,
+        filename: photo.filename,
+        originalName: photo.original_name,
+        uploadedAt: photo.uploaded_at
+      });
+      return acc;
+    }, {});
 
     res.json({
       checklist: checklist.reduce((acc, item) => {
@@ -61,7 +110,8 @@ app.get('/api/progress', (req, res) => {
       statuses: statuses.reduce((acc, item) => {
         acc[item.id] = item.status;
         return acc;
-      }, {})
+      }, {}),
+      photos: photosBySlot
     });
   } catch (error) {
     console.error('Error fetching progress:', error);
@@ -129,6 +179,76 @@ app.post('/api/status/:id', (req, res) => {
   }
 });
 
+// Upload photo
+app.post('/api/photos/:slotId', upload.single('photo'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const { slotId } = req.params;
+    const timestamp = Date.now();
+    const filename = `${slotId}-${timestamp}.jpg`;
+    const filepath = path.join(uploadsDir, filename);
+
+    // Process and save image with sharp (resize if too large, convert to jpg)
+    await sharp(req.file.buffer)
+      .rotate() // Auto-rotate based on EXIF
+      .resize(1920, 1920, {
+        fit: 'inside',
+        withoutEnlargement: true
+      })
+      .jpeg({ quality: 85 })
+      .toFile(filepath);
+
+    // Save to database
+    const stmt = db.prepare(`
+      INSERT INTO photos (slot_id, filename, original_name)
+      VALUES (?, ?, ?)
+    `);
+    const result = stmt.run(slotId, filename, req.file.originalname);
+
+    res.json({
+      success: true,
+      photo: {
+        id: result.lastInsertRowid,
+        filename: filename,
+        originalName: req.file.originalname
+      }
+    });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    res.status(500).json({ error: 'Failed to upload photo' });
+  }
+});
+
+// Delete photo
+app.delete('/api/photos/:photoId', (req, res) => {
+  try {
+    const { photoId } = req.params;
+
+    // Get photo info
+    const photo = db.prepare('SELECT filename FROM photos WHERE id = ?').get(photoId);
+    if (!photo) {
+      return res.status(404).json({ error: 'Photo not found' });
+    }
+
+    // Delete file
+    const filepath = path.join(uploadsDir, photo.filename);
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath);
+    }
+
+    // Delete from database
+    db.prepare('DELETE FROM photos WHERE id = ?').run(photoId);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting photo:', error);
+    res.status(500).json({ error: 'Failed to delete photo' });
+  }
+});
+
 // Fallback to index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -143,4 +263,5 @@ process.on('SIGINT', () => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Home Projects server running on port ${PORT}`);
   console.log(`Database location: ${path.join(dataDir, 'projects.db')}`);
+  console.log(`Uploads directory: ${uploadsDir}`);
 });

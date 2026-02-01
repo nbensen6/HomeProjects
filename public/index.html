@@ -310,19 +310,164 @@
             margin-top: 10px;
         }
 
-        .image-placeholder {
+        .photo-upload {
             background: rgba(255, 255, 255, 0.05);
             border: 2px dashed rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
             margin: 15px 0;
             color: #888;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .image-placeholder:hover {
+        .photo-upload:hover {
             border-color: #00d4ff;
             background: rgba(0, 212, 255, 0.05);
+        }
+
+        .photo-upload.dragging {
+            border-color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .photo-upload-input {
+            display: none;
+        }
+
+        .photo-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .photo-upload-icon {
+            font-size: 2rem;
+            color: #00d4ff;
+        }
+
+        .photo-upload-text {
+            font-size: 0.9rem;
+        }
+
+        .photo-upload-hint {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .photo-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item img:hover {
+            transform: scale(1.05);
+        }
+
+        .photo-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 71, 87, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .photo-item:hover .photo-delete {
+            opacity: 1;
+        }
+
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .photo-modal.active {
+            display: flex;
+        }
+
+        .photo-modal img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .photo-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-progress {
+            margin-top: 10px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .upload-progress-bar {
+            height: 100%;
+            background: #00d4ff;
+            width: 0%;
+            transition: width 0.3s ease;
         }
 
         .step-number {
@@ -501,8 +646,15 @@
                         <div class="info-box">
                             <strong>Issue:</strong> Bosch dishwasher door becomes slightly ajar during the wash cycle, causing the machine to stop mid-wash.
                         </div>
-                        <div class="image-placeholder">
-                            Upload image of your dishwasher door/latch here for reference
+                        <div class="photo-upload" data-slot="p1-dishwasher-latch">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload dishwasher door/latch photo</span>
+                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="photo-gallery"></div>
                         </div>
                     </div>
 
@@ -949,8 +1101,15 @@
                                 <li>SharkBite connection to water line may be causing pressure loss</li>
                             </ul>
                         </div>
-                        <div class="image-placeholder">
-                            Upload image of your SharkBite connection and water line setup
+                        <div class="photo-upload" data-slot="p3-sharkbite-connection">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload SharkBite connection photo</span>
+                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="photo-gallery"></div>
                         </div>
                     </div>
 
@@ -1157,11 +1316,25 @@
                                 <li>Handle electrical requirements</li>
                             </ul>
                         </div>
-                        <div class="image-placeholder">
-                            Upload current laundry room layout photo
+                        <div class="photo-upload" data-slot="p4-laundry-current">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload current laundry room layout</span>
+                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="photo-gallery"></div>
                         </div>
-                        <div class="image-placeholder">
-                            Upload desired new layout sketch/photo
+                        <div class="photo-upload" data-slot="p4-laundry-planned">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload planned layout sketch/photo</span>
+                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="photo-gallery"></div>
                         </div>
                     </div>
 
@@ -1440,6 +1613,12 @@
 
     </div>
 
+    <!-- Photo Modal for fullscreen view -->
+    <div id="photo-modal" class="photo-modal">
+        <button class="photo-modal-close" onclick="closePhotoModal()">&times;</button>
+        <img id="photo-modal-img" src="" alt="Full size photo">
+    </div>
+
     <script>
         // Sync status indicator
         let syncStatus = 'synced';
@@ -1563,6 +1742,22 @@
                     }
                 });
 
+                // Load photos
+                if (data.photos) {
+                    Object.entries(data.photos).forEach(([slotId, photos]) => {
+                        const uploadEl = document.querySelector(`[data-slot="${slotId}"]`);
+                        if (uploadEl) {
+                            const gallery = uploadEl.querySelector('.photo-gallery');
+                            if (gallery) {
+                                gallery.innerHTML = '';
+                                photos.forEach(photo => {
+                                    addPhotoToGallery(gallery, photo);
+                                });
+                            }
+                        }
+                    });
+                }
+
                 showSyncStatus('synced');
             } catch (error) {
                 console.error('Failed to load progress:', error);
@@ -1645,6 +1840,168 @@
             if (!document.hidden) {
                 loadProgress();
             }
+        });
+
+        // Photo upload functionality
+        function initializePhotoUploads() {
+            document.querySelectorAll('.photo-upload').forEach(uploadEl => {
+                const input = uploadEl.querySelector('.photo-upload-input');
+                const slotId = uploadEl.getAttribute('data-slot');
+
+                // Click to upload
+                input.addEventListener('change', (e) => {
+                    handlePhotoUpload(slotId, e.target.files, uploadEl);
+                    e.target.value = ''; // Reset input
+                });
+
+                // Drag and drop
+                uploadEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadEl.classList.add('dragging');
+                });
+
+                uploadEl.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadEl.classList.remove('dragging');
+                });
+
+                uploadEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadEl.classList.remove('dragging');
+                    const files = e.dataTransfer.files;
+                    handlePhotoUpload(slotId, files, uploadEl);
+                });
+            });
+        }
+
+        async function handlePhotoUpload(slotId, files, uploadEl) {
+            const progressBar = uploadEl.querySelector('.upload-progress');
+            const progressInner = uploadEl.querySelector('.upload-progress-bar');
+            const gallery = uploadEl.querySelector('.photo-gallery');
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                progressBar.classList.add('active');
+                progressInner.style.width = '0%';
+                showSyncStatus('syncing');
+
+                try {
+                    const formData = new FormData();
+                    formData.append('photo', file);
+
+                    // Simulate progress
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress = Math.min(progress + 10, 90);
+                        progressInner.style.width = progress + '%';
+                    }, 100);
+
+                    const response = await fetch('/api/photos/' + encodeURIComponent(slotId), {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    clearInterval(progressInterval);
+                    progressInner.style.width = '100%';
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        addPhotoToGallery(gallery, data.photo);
+                        showSyncStatus('synced');
+                    } else {
+                        throw new Error('Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Photo upload error:', error);
+                    showSyncStatus('error');
+                    alert('Failed to upload photo. Please try again.');
+                }
+
+                setTimeout(() => {
+                    progressBar.classList.remove('active');
+                    progressInner.style.width = '0%';
+                }, 500);
+            }
+        }
+
+        function addPhotoToGallery(gallery, photo) {
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item';
+            photoItem.setAttribute('data-photo-id', photo.id);
+
+            const img = document.createElement('img');
+            img.src = '/uploads/' + photo.filename;
+            img.alt = photo.originalName || 'Uploaded photo';
+            img.onclick = () => openPhotoModal('/uploads/' + photo.filename);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'photo-delete';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deletePhoto(photo.id, photoItem);
+            };
+
+            photoItem.appendChild(img);
+            photoItem.appendChild(deleteBtn);
+            gallery.appendChild(photoItem);
+        }
+
+        async function deletePhoto(photoId, photoItem) {
+            if (!confirm('Delete this photo?')) return;
+
+            showSyncStatus('syncing');
+            try {
+                const response = await fetch('/api/photos/' + photoId, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    photoItem.remove();
+                    showSyncStatus('synced');
+                } else {
+                    throw new Error('Delete failed');
+                }
+            } catch (error) {
+                console.error('Photo delete error:', error);
+                showSyncStatus('error');
+                alert('Failed to delete photo. Please try again.');
+            }
+        }
+
+        function openPhotoModal(src) {
+            const modal = document.getElementById('photo-modal');
+            const img = document.getElementById('photo-modal-img');
+            img.src = src;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoModal() {
+            const modal = document.getElementById('photo-modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on click outside image
+        document.getElementById('photo-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePhotoModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePhotoModal();
+            }
+        });
+
+        // Initialize photo uploads on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePhotoUploads();
         });
     </script>
 </body>
