@@ -470,6 +470,40 @@
             transition: width 0.3s ease;
         }
 
+        .share-claude-btn {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .share-claude-btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            transform: translateY(-1px);
+        }
+
+        .share-claude-btn.visible {
+            display: block;
+        }
+
+        .share-claude-btn.copied {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+        }
+
+        .upload-count {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
         .step-number {
             background: #00d4ff;
             color: #000;
@@ -649,12 +683,14 @@
                         <div class="photo-upload" data-slot="p1-dishwasher-latch">
                             <label class="photo-upload-label">
                                 <span class="photo-upload-icon">+</span>
-                                <span class="photo-upload-text">Upload dishwasher door/latch photo</span>
-                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <span class="photo-upload-text">Upload dishwasher door/latch photos</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
                                 <input type="file" class="photo-upload-input" accept="image/*" multiple>
                             </label>
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
+                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
                         </div>
                     </div>
 
@@ -1104,12 +1140,14 @@
                         <div class="photo-upload" data-slot="p3-sharkbite-connection">
                             <label class="photo-upload-label">
                                 <span class="photo-upload-icon">+</span>
-                                <span class="photo-upload-text">Upload SharkBite connection photo</span>
-                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <span class="photo-upload-text">Upload SharkBite connection photos</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
                                 <input type="file" class="photo-upload-input" accept="image/*" multiple>
                             </label>
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
+                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
                         </div>
                     </div>
 
@@ -1320,21 +1358,25 @@
                             <label class="photo-upload-label">
                                 <span class="photo-upload-icon">+</span>
                                 <span class="photo-upload-text">Upload current laundry room layout</span>
-                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
                                 <input type="file" class="photo-upload-input" accept="image/*" multiple>
                             </label>
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
+                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
                         </div>
                         <div class="photo-upload" data-slot="p4-laundry-planned">
                             <label class="photo-upload-label">
                                 <span class="photo-upload-icon">+</span>
                                 <span class="photo-upload-text">Upload planned layout sketch/photo</span>
-                                <span class="photo-upload-hint">Tap to select or drag & drop</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
                                 <input type="file" class="photo-upload-input" accept="image/*" multiple>
                             </label>
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
+                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
                         </div>
                     </div>
 
@@ -1751,7 +1793,7 @@
                             if (gallery) {
                                 gallery.innerHTML = '';
                                 photos.forEach(photo => {
-                                    addPhotoToGallery(gallery, photo);
+                                    addPhotoToGallery(gallery, photo, uploadEl);
                                 });
                             }
                         }
@@ -1878,58 +1920,75 @@
             const progressBar = uploadEl.querySelector('.upload-progress');
             const progressInner = uploadEl.querySelector('.upload-progress-bar');
             const gallery = uploadEl.querySelector('.photo-gallery');
+            const uploadCount = uploadEl.querySelector('.upload-count');
 
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!file.type.startsWith('image/')) continue;
+            // Convert FileList to array and filter for images
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
 
-                progressBar.classList.add('active');
-                progressInner.style.width = '0%';
-                showSyncStatus('syncing');
+            if (imageFiles.length === 0) return;
+
+            progressBar.classList.add('active');
+            showSyncStatus('syncing');
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+
+                // Update progress
+                const baseProgress = (i / imageFiles.length) * 100;
+                progressInner.style.width = baseProgress + '%';
+                uploadCount.textContent = `Uploading ${i + 1} of ${imageFiles.length}...`;
 
                 try {
                     const formData = new FormData();
                     formData.append('photo', file);
-
-                    // Simulate progress
-                    let progress = 0;
-                    const progressInterval = setInterval(() => {
-                        progress = Math.min(progress + 10, 90);
-                        progressInner.style.width = progress + '%';
-                    }, 100);
 
                     const response = await fetch('/api/photos/' + encodeURIComponent(slotId), {
                         method: 'POST',
                         body: formData
                     });
 
-                    clearInterval(progressInterval);
-                    progressInner.style.width = '100%';
-
                     if (response.ok) {
                         const data = await response.json();
-                        addPhotoToGallery(gallery, data.photo);
-                        showSyncStatus('synced');
+                        addPhotoToGallery(gallery, data.photo, uploadEl);
+                        successCount++;
                     } else {
                         throw new Error('Upload failed');
                     }
                 } catch (error) {
                     console.error('Photo upload error:', error);
-                    showSyncStatus('error');
-                    alert('Failed to upload photo. Please try again.');
+                    failCount++;
                 }
-
-                setTimeout(() => {
-                    progressBar.classList.remove('active');
-                    progressInner.style.width = '0%';
-                }, 500);
             }
+
+            progressInner.style.width = '100%';
+
+            if (failCount > 0) {
+                uploadCount.textContent = `Uploaded ${successCount} of ${imageFiles.length} (${failCount} failed)`;
+                showSyncStatus('error');
+            } else {
+                uploadCount.textContent = `${successCount} photo${successCount !== 1 ? 's' : ''} uploaded`;
+                showSyncStatus('synced');
+            }
+
+            setTimeout(() => {
+                progressBar.classList.remove('active');
+                progressInner.style.width = '0%';
+            }, 500);
+
+            // Clear the count message after a delay
+            setTimeout(() => {
+                uploadCount.textContent = '';
+            }, 3000);
         }
 
-        function addPhotoToGallery(gallery, photo) {
+        function addPhotoToGallery(gallery, photo, uploadEl) {
             const photoItem = document.createElement('div');
             photoItem.className = 'photo-item';
             photoItem.setAttribute('data-photo-id', photo.id);
+            photoItem.setAttribute('data-filename', photo.filename);
 
             const img = document.createElement('img');
             img.src = '/uploads/' + photo.filename;
@@ -1941,15 +2000,28 @@
             deleteBtn.innerHTML = '&times;';
             deleteBtn.onclick = (e) => {
                 e.stopPropagation();
-                deletePhoto(photo.id, photoItem);
+                deletePhoto(photo.id, photoItem, uploadEl || gallery.closest('.photo-upload'));
             };
 
             photoItem.appendChild(img);
             photoItem.appendChild(deleteBtn);
             gallery.appendChild(photoItem);
+
+            // Show share button if there are photos
+            updateShareButtonVisibility(uploadEl || gallery.closest('.photo-upload'));
         }
 
-        async function deletePhoto(photoId, photoItem) {
+        function updateShareButtonVisibility(uploadEl) {
+            if (!uploadEl) return;
+            const gallery = uploadEl.querySelector('.photo-gallery');
+            const shareBtn = uploadEl.querySelector('.share-claude-btn');
+            if (gallery && shareBtn) {
+                const hasPhotos = gallery.querySelectorAll('.photo-item').length > 0;
+                shareBtn.classList.toggle('visible', hasPhotos);
+            }
+        }
+
+        async function deletePhoto(photoId, photoItem, uploadEl) {
             if (!confirm('Delete this photo?')) return;
 
             showSyncStatus('syncing');
@@ -1961,6 +2033,7 @@
                 if (response.ok) {
                     photoItem.remove();
                     showSyncStatus('synced');
+                    updateShareButtonVisibility(uploadEl);
                 } else {
                     throw new Error('Delete failed');
                 }
@@ -1969,6 +2042,45 @@
                 showSyncStatus('error');
                 alert('Failed to delete photo. Please try again.');
             }
+        }
+
+        function shareWithClaude(button) {
+            const uploadEl = button.closest('.photo-upload');
+            const gallery = uploadEl.querySelector('.photo-gallery');
+            const photos = gallery.querySelectorAll('.photo-item');
+            const slotId = uploadEl.getAttribute('data-slot');
+
+            // Get slot description
+            const descriptions = {
+                'p1-dishwasher-latch': 'Dishwasher Door/Latch Photos',
+                'p3-sharkbite-connection': 'SharkBite Connection Photos',
+                'p4-laundry-current': 'Current Laundry Room Layout',
+                'p4-laundry-planned': 'Planned Laundry Room Layout'
+            };
+
+            const baseUrl = window.location.origin;
+            let text = `**${descriptions[slotId] || 'Project Photos'}**\n\n`;
+
+            photos.forEach((photo, index) => {
+                const filename = photo.getAttribute('data-filename');
+                text += `Photo ${index + 1}: ${baseUrl}/uploads/${filename}\n`;
+            });
+
+            text += `\nPlease review these photos and provide advice for my project.`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy URLs for Claude';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                // Fallback: show text in prompt
+                prompt('Copy this text to share with Claude:', text);
+            });
         }
 
         function openPhotoModal(src) {
