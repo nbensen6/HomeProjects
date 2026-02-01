@@ -470,10 +470,10 @@
             transition: width 0.3s ease;
         }
 
-        .share-claude-btn {
+        .download-claude-btn {
             display: none;
             margin-top: 10px;
-            padding: 10px 16px;
+            padding: 12px 16px;
             background: linear-gradient(135deg, #8b5cf6, #6366f1);
             color: white;
             border: none;
@@ -483,18 +483,25 @@
             font-weight: 500;
             width: 100%;
             transition: all 0.2s ease;
+            text-decoration: none;
+            text-align: center;
         }
 
-        .share-claude-btn:hover {
+        .download-claude-btn:hover {
             background: linear-gradient(135deg, #7c3aed, #4f46e5);
             transform: translateY(-1px);
         }
 
-        .share-claude-btn.visible {
+        .download-claude-btn.visible {
             display: block;
         }
 
-        .share-claude-btn.copied {
+        .download-claude-btn.downloading {
+            background: linear-gradient(135deg, #ffa500, #ff8c00);
+            pointer-events: none;
+        }
+
+        .download-claude-btn.done {
             background: linear-gradient(135deg, #00ff88, #00cc6a);
         }
 
@@ -690,7 +697,7 @@
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
                             <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
-                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
                         </div>
                     </div>
 
@@ -1147,7 +1154,7 @@
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
                             <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
-                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
                         </div>
                     </div>
 
@@ -1364,7 +1371,7 @@
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
                             <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
-                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
                         </div>
                         <div class="photo-upload" data-slot="p4-laundry-planned">
                             <label class="photo-upload-label">
@@ -1376,7 +1383,7 @@
                             <div class="upload-progress"><div class="upload-progress-bar"></div></div>
                             <div class="upload-count"></div>
                             <div class="photo-gallery"></div>
-                            <button class="share-claude-btn" onclick="shareWithClaude(this)">Copy URLs for Claude</button>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
                         </div>
                     </div>
 
@@ -2014,10 +2021,10 @@
         function updateShareButtonVisibility(uploadEl) {
             if (!uploadEl) return;
             const gallery = uploadEl.querySelector('.photo-gallery');
-            const shareBtn = uploadEl.querySelector('.share-claude-btn');
-            if (gallery && shareBtn) {
+            const downloadBtn = uploadEl.querySelector('.download-claude-btn');
+            if (gallery && downloadBtn) {
                 const hasPhotos = gallery.querySelectorAll('.photo-item').length > 0;
-                shareBtn.classList.toggle('visible', hasPhotos);
+                downloadBtn.classList.toggle('visible', hasPhotos);
             }
         }
 
@@ -2044,43 +2051,60 @@
             }
         }
 
-        function shareWithClaude(button) {
+        function downloadForClaude(button) {
             const uploadEl = button.closest('.photo-upload');
-            const gallery = uploadEl.querySelector('.photo-gallery');
-            const photos = gallery.querySelectorAll('.photo-item');
             const slotId = uploadEl.getAttribute('data-slot');
 
-            // Get slot description
+            // Get friendly name for the download
             const descriptions = {
-                'p1-dishwasher-latch': 'Dishwasher Door/Latch Photos',
-                'p3-sharkbite-connection': 'SharkBite Connection Photos',
-                'p4-laundry-current': 'Current Laundry Room Layout',
-                'p4-laundry-planned': 'Planned Laundry Room Layout'
+                'p1-dishwasher-latch': 'Dishwasher photos',
+                'p3-sharkbite-connection': 'SharkBite photos',
+                'p4-laundry-current': 'Laundry room photos',
+                'p4-laundry-planned': 'Laundry plan photos'
             };
 
-            const baseUrl = window.location.origin;
-            let text = `**${descriptions[slotId] || 'Project Photos'}**\n\n`;
+            // Show downloading state
+            const originalText = button.textContent;
+            button.textContent = 'Downloading...';
+            button.classList.add('downloading');
 
-            photos.forEach((photo, index) => {
-                const filename = photo.getAttribute('data-filename');
-                text += `Photo ${index + 1}: ${baseUrl}/uploads/${filename}\n`;
-            });
+            // Create a hidden link and trigger download
+            const downloadUrl = `/api/photos/${encodeURIComponent(slotId)}/download`;
 
-            text += `\nPlease review these photos and provide advice for my project.`;
+            fetch(downloadUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Download failed');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${slotId.replace(/^p\d+-/, '')}-photos.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
 
-            // Copy to clipboard
-            navigator.clipboard.writeText(text).then(() => {
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
-                setTimeout(() => {
-                    button.textContent = 'Copy URLs for Claude';
-                    button.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                console.error('Copy failed:', err);
-                // Fallback: show text in prompt
-                prompt('Copy this text to share with Claude:', text);
-            });
+                    // Show success state
+                    button.textContent = 'Downloaded!';
+                    button.classList.remove('downloading');
+                    button.classList.add('done');
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove('done');
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Download failed:', err);
+                    button.textContent = 'Download failed';
+                    button.classList.remove('downloading');
+
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000);
+                });
         }
 
         function openPhotoModal(src) {
