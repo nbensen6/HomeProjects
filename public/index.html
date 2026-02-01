@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Projects Guide</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+
+        .progress-overview {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-overview h2 {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .status-pending { background: #ffa500; color: #000; }
+        .status-in-progress { background: #00d4ff; color: #000; }
+        .status-complete { background: #00ff88; color: #000; }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 30px rgba(0, 212, 255, 0.1);
+        }
+
+        .project-header {
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            transition: background 0.3s ease;
+        }
+
+        .project-header:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .project-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .project-number {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .project-name {
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        .difficulty-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .difficulty-easy { background: #00ff88; color: #000; }
+        .difficulty-medium { background: #ffa500; color: #000; }
+        .difficulty-hard { background: #ff4757; color: #fff; }
+
+        .expand-icon {
+            font-size: 1.5rem;
+            color: #00d4ff;
+            transition: transform 0.3s ease;
+        }
+
+        .project-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .project-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .project-card.expanded .project-content {
+            max-height: 5000px;
+        }
+
+        .content-inner {
+            padding: 25px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: #00d4ff;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checklist li:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .checklist li.checked {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #00d4ff;
+            border-radius: 5px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .checklist li.checked .checkbox {
+            background: #00d4ff;
+        }
+
+        .checklist li.checked .checkbox::after {
+            content: "✓";
+            color: #000;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: rgba(0, 212, 255, 0.1);
+            border-left: 4px solid #00d4ff;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+        }
+
+        .warning-box {
+            background: rgba(255, 167, 0, 0.1);
+            border-left: 4px solid #ffa500;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+        }
+
+        .danger-box {
+            background: rgba(255, 71, 87, 0.1);
+            border-left: 4px solid #ff4757;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+        }
+
+        .success-box {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 15px;
+        }
+
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .spec-table th,
+        .spec-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .spec-table th {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .spec-table tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .tool-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .cost-estimate {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .image-placeholder {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 15px 0;
+            color: #888;
+        }
+
+        .image-placeholder:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .step-number {
+            background: #00d4ff;
+            color: #000;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            color: #e0e0e0;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .notes-area:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .sub-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .sub-section h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .parts-list {
+            list-style: none;
+        }
+
+        .parts-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+
+        .tag-recommended { background: #00ff88; color: #000; }
+        .tag-alternative { background: #ffa500; color: #000; }
+        .tag-optional { background: #888; color: #fff; }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .project-name { font-size: 1.1rem; }
+            .project-header { padding: 15px; }
+            .content-inner { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Home Projects Guide</h1>
+        <p class="subtitle">Interactive project planner with checklists and reference guides</p>
+
+        <div class="progress-overview">
+            <h2>Project Overview</h2>
+            <div class="progress-grid">
+                <div class="progress-item">
+                    <div class="status-icon status-pending">1</div>
+                    <span>Dishwasher Door Fix</span>
+                </div>
+                <div class="progress-item">
+                    <div class="status-icon status-pending">2</div>
+                    <span>Furnace Humidifier</span>
+                </div>
+                <div class="progress-item">
+                    <div class="status-icon status-pending">3</div>
+                    <span>Fridge Water Flow</span>
+                </div>
+                <div class="progress-item">
+                    <div class="status-icon status-pending">4</div>
+                    <span>Laundry Room Layout</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECT 1: DISHWASHER -->
+        <div class="project-card" id="project1">
+            <div class="project-header" onclick="toggleProject('project1')">
+                <div class="project-title">
+                    <div class="project-number">1</div>
+                    <div>
+                        <div class="project-name">Bosch Dishwasher Door Fix</div>
+                        <small style="color: #888;">Door opens during wash cycle</small>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="difficulty-badge difficulty-easy">Easy-Medium</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="project-content">
+                <div class="content-inner">
+
+                    <div class="section">
+                        <h3 class="section-title">Problem Description</h3>
+                        <div class="info-box">
+                            <strong>Issue:</strong> Bosch dishwasher door becomes slightly ajar during the wash cycle, causing the machine to stop mid-wash.
+                        </div>
+                        <div class="image-placeholder">
+                            Upload image of your dishwasher door/latch here for reference
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Common Causes</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Loose latch screw</strong> - The screw holding the white plastic latch mechanism may not be fully tightened (common manufacturing QC issue)</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Dirty/debris on latch</strong> - Food particles or residue preventing proper engagement</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Bent door hinges</strong> - Door doesn't stop at 90 degrees when open, causes resistance when closing</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Misaligned dish racks</strong> - Racks not properly seated in tracks can block door closure</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Worn latch spring</strong> - Spring has lost tension over time</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Latch hook position</strong> - The plastic hook needs to face toward the door, not inward</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Diagnostic Steps</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Check rack alignment</strong> - Pull racks out and reseat them properly in the tracks. Ensure nothing is blocking the door path.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Clean the latch area</strong> - Use warm soapy water to clean the door latch and strike plate. Remove any sticky residue.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Test hinge position</strong> - Open door fully. It should stop at exactly 90 degrees. If it goes past or requires force to close, hinges may be bent.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Inspect latch mechanism</strong> - Remove the 2 screws holding dishwasher to countertop, pull out 4 inches, look at latch from top.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Check latch screw</strong> - Unscrew the 4 screws on the metal plate. Find the screw holding the white plastic latch - tighten if loose.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">6</div>
+                                <div><strong>Reset dishwasher</strong> - Unplug or turn off breaker for 10+ minutes to reset electronics.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Repair Solutions</h3>
+
+                        <div class="sub-section">
+                            <h4>Quick Fixes (Try First)</h4>
+                            <ul class="checklist">
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div>Tighten all visible latch screws with Phillips screwdriver</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div>Apply silicone-based lubricant to latch mechanism (NOT WD-40)</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div>Adjust the latch hook position - pull toward door until it clicks</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div>Ensure door gasket is clean and seated properly</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4>Part Replacement (If Needed)</h4>
+                            <table class="spec-table">
+                                <tr>
+                                    <th>Part</th>
+                                    <th>Cost</th>
+                                    <th>Notes</th>
+                                </tr>
+                                <tr>
+                                    <td>Door Latch Assembly</td>
+                                    <td>$25-50</td>
+                                    <td>Most common replacement</td>
+                                </tr>
+                                <tr>
+                                    <td>Door Hinge (pair)</td>
+                                    <td>$40-80</td>
+                                    <td>If door doesn't stop at 90°</td>
+                                </tr>
+                                <tr>
+                                    <td>Latch Spring</td>
+                                    <td>$10-20</td>
+                                    <td>If spring has no tension</td>
+                                </tr>
+                                <tr>
+                                    <td>Door Strike Plate</td>
+                                    <td>$15-30</td>
+                                    <td>If plate is damaged</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Tools Needed</h3>
+                        <div class="tools-grid">
+                            <div class="tool-item">Phillips Screwdriver</div>
+                            <div class="tool-item">Flashlight</div>
+                            <div class="tool-item">Silicone Lubricant</div>
+                            <div class="tool-item">Clean Cloth</div>
+                            <div class="tool-item">Multimeter (optional)</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Reference Links</h3>
+                        <ul class="parts-list">
+                            <li><a href="https://www.bosch-home.com/us/owner-support/dishwashers/troubleshooting" target="_blank">Bosch Official Troubleshooting Guide</a></li>
+                            <li><a href="https://www.doityourself.com/forum/electric-large-kitchen-home-appliances/578995-bosch-dishwasher-door-latch-wont-stay-closed-during-cycle.html" target="_blank">DIY Forum - Latch Screw Fix</a></li>
+                            <li><a href="https://www.searshomeservices.com/symptom/bosch-dishwasher-door-not-closing" target="_blank">Sears - Dishwasher Door Solutions</a></li>
+                        </ul>
+                        <div class="info-box" style="margin-top: 15px;">
+                            <strong>Bosch Support:</strong> 1-800-944-2904
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Notes</h3>
+                        <textarea class="notes-area" placeholder="Add your observations, model number, or other notes here..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECT 2: HUMIDIFIER -->
+        <div class="project-card" id="project2">
+            <div class="project-header" onclick="toggleProject('project2')">
+                <div class="project-title">
+                    <div class="project-number">2</div>
+                    <div>
+                        <div class="project-name">Furnace Humidifier Replacement</div>
+                        <small style="color: #888;">Replace 32-year-old unit with AprilAire 700M</small>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="difficulty-badge difficulty-medium">Medium</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="project-content">
+                <div class="content-inner">
+
+                    <div class="section">
+                        <h3 class="section-title">Current Unit Information</h3>
+                        <div class="success-box">
+                            <strong>Previous Conversation Found!</strong> Your humidifier research was located in your Claude history.
+                        </div>
+                        <table class="spec-table">
+                            <tr>
+                                <th>Specification</th>
+                                <th>Current Unit</th>
+                            </tr>
+                            <tr>
+                                <td>Model</td>
+                                <td>General Filters Model 1137 Power Humidifier</td>
+                            </tr>
+                            <tr>
+                                <td>Age</td>
+                                <td>32 years (manufactured May 2, 1994)</td>
+                            </tr>
+                            <tr>
+                                <td>Type</td>
+                                <td>Fan-powered (flow-through)</td>
+                            </tr>
+                            <tr>
+                                <td>Power</td>
+                                <td>120V, 1.0 Amps, 60Hz</td>
+                            </tr>
+                            <tr>
+                                <td>Capacity</td>
+                                <td>21.3 GPD (Gallons Per Day)</td>
+                            </tr>
+                            <tr>
+                                <td>Control</td>
+                                <td>24V remote humidistat connection</td>
+                            </tr>
+                            <tr>
+                                <td>Duct Opening</td>
+                                <td>15" W x 9.75" H</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Problem Identified</h3>
+                        <div class="warning-box">
+                            <strong>Issue:</strong> Copper piping shakes when running the humidifier. This is caused by a <strong>worn solenoid valve</strong> that's 32 years old. The internal seal has degraded, causing the valve to chatter/pulse and create pressure waves in the pipe.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Recommended Replacement</h3>
+                        <div class="sub-section">
+                            <h4>AprilAire 700M (Manual Control) <span class="tag tag-recommended">Recommended</span></h4>
+                            <table class="spec-table">
+                                <tr>
+                                    <th>Specification</th>
+                                    <th>Value</th>
+                                </tr>
+                                <tr>
+                                    <td>Model</td>
+                                    <td>AprilAire 700M</td>
+                                </tr>
+                                <tr>
+                                    <td>Type</td>
+                                    <td>Fan-powered</td>
+                                </tr>
+                                <tr>
+                                    <td>Capacity</td>
+                                    <td>18 GPD</td>
+                                </tr>
+                                <tr>
+                                    <td>Coverage</td>
+                                    <td>Up to 4,200-5,300 sq ft</td>
+                                </tr>
+                                <tr>
+                                    <td>Price</td>
+                                    <td>$350-420</td>
+                                </tr>
+                                <tr>
+                                    <td>Duct Opening Required</td>
+                                    <td>14.75" W x 14.3" H</td>
+                                </tr>
+                                <tr>
+                                    <td>Warranty</td>
+                                    <td>5-year parts</td>
+                                </tr>
+                            </table>
+                            <div class="info-box" style="margin-top: 15px;">
+                                <strong>Key Decision:</strong> Get the unit WITHOUT the install kit - your existing water line, drain, and electrical are already in place.
+                            </div>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4>Alternative Models Considered</h4>
+                            <ul class="parts-list">
+                                <li>
+                                    <span>AprilAire 720A - 21 GPD (60% less water waste)</span>
+                                    <span>~$500</span>
+                                </li>
+                                <li>
+                                    <span>AprilAire 600 - 17 GPD bypass type</span>
+                                    <span>~$300</span>
+                                </li>
+                                <li>
+                                    <span>Honeywell HE360D - 18 GPD (being discontinued)</span>
+                                    <span>~$320</span>
+                                </li>
+                                <li>
+                                    <span>GeneralAire 1042 - 17 GPD (same manufacturer)</span>
+                                    <span>~$280</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Installation Requirements</h3>
+                        <div class="danger-box">
+                            <strong>Duct Modification Required:</strong> The AprilAire 700 requires a TALLER opening than your current unit. You'll need to enlarge the duct opening by approximately 4.5 inches vertically.
+                        </div>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Turn off furnace and power</strong> - Safety first! Turn off gas and electrical.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Shut off water supply</strong> - Close the valve on the copper water line.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Remove old unit</strong> - Disconnect water line, drain tube, electrical, and 24V control wiring.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Enlarge duct opening</strong> - Use tin snips or aviation shears to extend opening 4.5" vertically.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Install new mounting template</strong> - Follow AprilAire template for positioning.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">6</div>
+                                <div><strong>Connect water supply</strong> - Attach to existing copper line with new solenoid valve.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">7</div>
+                                <div><strong>Connect drain</strong> - Route to existing floor drain.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">8</div>
+                                <div><strong>Wire 120V power</strong> - Connect to existing power supply.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">9</div>
+                                <div><strong>Connect 24V control</strong> - Wire to furnace control board.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">10</div>
+                                <div><strong>Test operation</strong> - Turn on water, power, and run through cycle.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Existing Infrastructure</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div>Copper water supply line from hot water heater</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div>Shutoff/solenoid valve connection point</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div>Drain tube to floor drain</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div>120V power connection</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div>24V control wiring to furnace</div>
+                            </li>
+                        </ul>
+                        <div class="info-box" style="margin-top: 15px;">
+                            <strong>Related Equipment:</strong><br>
+                            • Furnace: Amana gas furnace<br>
+                            • Water Heater: Bradford White Defender<br>
+                            • Location: Supply plenum (left side, facing furnace)
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Where to Buy</h3>
+                        <ul class="parts-list">
+                            <li><span>Amazon</span><span>Prime shipping available</span></li>
+                            <li><span>Walmart.com</span><span>Competitive pricing</span></li>
+                            <li><span>AprilAire Direct</span><span>Manufacturer direct</span></li>
+                            <li><span>DiscountFurnaceFilter.com</span><span>Free shipping</span></li>
+                            <li><span>AC Wholesalers</span><span>Free shipping</span></li>
+                        </ul>
+                        <div class="warning-box" style="margin-top: 15px;">
+                            <strong>Note:</strong> Big box stores (Home Depot, Lowe's, Ace) typically don't carry AprilAire.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Tools Needed</h3>
+                        <div class="tools-grid">
+                            <div class="tool-item">Tin Snips / Aviation Shears</div>
+                            <div class="tool-item">Screwdriver Set</div>
+                            <div class="tool-item">Adjustable Wrench</div>
+                            <div class="tool-item">Wire Strippers</div>
+                            <div class="tool-item">Teflon Tape</div>
+                            <div class="tool-item">Drill</div>
+                            <div class="tool-item">Level</div>
+                            <div class="tool-item">Safety Glasses</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Warranty Information</h3>
+                        <div class="info-box">
+                            <strong>5-year parts warranty</strong> (from date of installation)<br><br>
+                            DIY installation technically voids the warranty, though AprilAire doesn't track who installs it. Professional HVAC installation costs ~$100-150 if warranty is a concern.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Existing Research Document</h3>
+                        <div class="success-box">
+                            <strong>Full research available at:</strong><br>
+                            C:\Users\nbens\Desktop\humidifier-research.html
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Notes</h3>
+                        <textarea class="notes-area" placeholder="Add your notes, purchase decisions, or installation observations here..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECT 3: FRIDGE WATER -->
+        <div class="project-card" id="project3">
+            <div class="project-header" onclick="toggleProject('project3')">
+                <div class="project-title">
+                    <div class="project-number">3</div>
+                    <div>
+                        <div class="project-name">Refrigerator Water Flow Issue</div>
+                        <small style="color: #888;">Low pressure from SharkBite connection</small>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="difficulty-badge difficulty-medium">Medium</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="project-content">
+                <div class="content-inner">
+
+                    <div class="section">
+                        <h3 class="section-title">Problem Description</h3>
+                        <div class="info-box">
+                            <strong>Issues:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li>Low/slow water flow from dispenser</li>
+                                <li>Water doesn't taste filtered despite having proper filter</li>
+                                <li>SharkBite connection to water line may be causing pressure loss</li>
+                            </ul>
+                        </div>
+                        <div class="image-placeholder">
+                            Upload image of your SharkBite connection and water line setup
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Diagnostic Tests</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Pressure Test</strong> - Disconnect water line at fridge. Put hose in bucket. Turn on water for 15 seconds. Should fill at least 13-16 oz. If less, problem is supply-side.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Dispenser Speed Test</strong> - Water should fill 6 oz (3/4 cup) in less than 10 seconds. Time your dispenser.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Bypass Filter Test</strong> - If available, install filter bypass plug. Test flow without filter. If better, filter is clogged.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Check SharkBite Connection</strong> - Ensure fitting is fully seated. The pipe should be inserted to the depth mark.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Inspect Line for Kinks</strong> - Pull fridge out. Check entire water line for kinks, especially near wall and behind fridge.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Pressure Requirements</h3>
+                        <table class="spec-table">
+                            <tr>
+                                <th>Measurement</th>
+                                <th>Minimum</th>
+                                <th>Recommended</th>
+                            </tr>
+                            <tr>
+                                <td>Water Pressure (PSI)</td>
+                                <td>20 PSI</td>
+                                <td>30-60 PSI</td>
+                            </tr>
+                            <tr>
+                                <td>Flow Rate</td>
+                                <td>6 oz in 10 sec</td>
+                                <td>8+ oz in 10 sec</td>
+                            </tr>
+                        </table>
+                        <div class="warning-box" style="margin-top: 15px;">
+                            Most city water is around 60 PSI. If you have a reverse osmosis system or other filtration, pressure can be significantly reduced.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Common Causes & Solutions</h3>
+
+                        <div class="sub-section">
+                            <h4>SharkBite Connection Issues</h4>
+                            <ul class="checklist">
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Not fully seated</strong> - Push pipe in until it hits the internal stop. Use the depth gauge tool.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Debris in fitting</strong> - Remove fitting, clean inside, reinstall.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Undersized tubing</strong> - Using 1/4" tubing? Consider upgrading to 3/8" for better flow.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Saddle valve restriction</strong> - If using a saddle valve (self-piercing), these are notorious for low flow. Replace with proper tee fitting.</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4>Filter Issues</h4>
+                            <ul class="checklist">
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Clogged filter</strong> - Replace every 6 months or when indicator shows. Even "new" filters can be defective.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Incorrect filter</strong> - Verify you have the exact OEM or compatible filter for your model.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Air in filter</strong> - After installing new filter, dispense 2-3 gallons to purge air and carbon fines.</div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="sub-section">
+                            <h4>Water Line Issues</h4>
+                            <ul class="checklist">
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Kinked line</strong> - Check behind fridge, ensure 3-4" clearance from wall.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Frozen line</strong> - If line runs through freezer, it may freeze. Thaw with hairdryer.</div>
+                                </li>
+                                <li onclick="toggleCheck(this)">
+                                    <div class="checkbox"></div>
+                                    <div><strong>Sediment buildup</strong> - Disconnect and flush line. Consider replacing if old.</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Possible Upgrades</h3>
+                        <table class="spec-table">
+                            <tr>
+                                <th>Solution</th>
+                                <th>Cost</th>
+                                <th>When to Use</th>
+                            </tr>
+                            <tr>
+                                <td>Pressure Booster Pump</td>
+                                <td>$100-200</td>
+                                <td>If home has low pressure throughout</td>
+                            </tr>
+                            <tr>
+                                <td>Replace Saddle Valve with Tee</td>
+                                <td>$20-40</td>
+                                <td>If using self-piercing valve</td>
+                            </tr>
+                            <tr>
+                                <td>Upgrade to 3/8" Line</td>
+                                <td>$15-30</td>
+                                <td>If currently using 1/4" tubing</td>
+                            </tr>
+                            <tr>
+                                <td>New Water Inlet Valve</td>
+                                <td>$50-100</td>
+                                <td>If fridge valve is failing</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Tools Needed</h3>
+                        <div class="tools-grid">
+                            <div class="tool-item">Adjustable Wrench</div>
+                            <div class="tool-item">Bucket</div>
+                            <div class="tool-item">Measuring Cup</div>
+                            <div class="tool-item">Timer/Stopwatch</div>
+                            <div class="tool-item">Towels</div>
+                            <div class="tool-item">SharkBite Depth Gauge</div>
+                            <div class="tool-item">SharkBite Disconnect Tool</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Reference Links</h3>
+                        <ul class="parts-list">
+                            <li><a href="https://waterfilterguru.com/why-is-my-fridge-water-dispenser-slow/" target="_blank">Water Filter Guru - Slow Dispenser Causes</a></li>
+                            <li><a href="https://products.geappliances.com/appliance/gea-support-search-content?contentId=16239" target="_blank">GE Appliances - Slow Water Flow Troubleshooting</a></li>
+                            <li><a href="https://producthelp.whirlpool.com/Refrigeration/Full-Size_Refrigerators/French_Door_Bottom_Freezer_Refrigerator/Ice_and_Water_Concerns/Water_and_Dispenser_Concerns/Water_Dispensing_Slowly" target="_blank">Whirlpool - Water Dispensing Slowly</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Notes</h3>
+                        <textarea class="notes-area" placeholder="Add fridge model number, test results, observations here..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECT 4: LAUNDRY ROOM -->
+        <div class="project-card" id="project4">
+            <div class="project-header" onclick="toggleProject('project4')">
+                <div class="project-title">
+                    <div class="project-number">4</div>
+                    <div>
+                        <div class="project-name">Basement Laundry Room Layout</div>
+                        <small style="color: #888;">Moving washer, extending connections</small>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="difficulty-badge difficulty-hard">Advanced</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="project-content">
+                <div class="content-inner">
+
+                    <div class="section">
+                        <h3 class="section-title">Project Overview</h3>
+                        <div class="info-box">
+                            <strong>Goals:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li>Relocate washer to new position</li>
+                                <li>Extend water supply lines</li>
+                                <li>Extend drain hose/connection</li>
+                                <li>Handle electrical requirements</li>
+                            </ul>
+                        </div>
+                        <div class="image-placeholder">
+                            Upload current laundry room layout photo
+                        </div>
+                        <div class="image-placeholder">
+                            Upload desired new layout sketch/photo
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Critical Safety Requirements</h3>
+                        <div class="danger-box">
+                            <strong>BEFORE STARTING ANY WORK:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li><strong>Electrical:</strong> Unplug washer OR turn off dedicated circuit breaker</li>
+                                <li><strong>Water:</strong> Turn off both hot and cold supply valves</li>
+                                <li><strong>Gas (if applicable):</strong> Turn off gas supply valve</li>
+                                <li>Water and electricity are a deadly combination - never work on one without disconnecting the other</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Drain Hose Extension Limits</h3>
+                        <table class="spec-table">
+                            <tr>
+                                <th>Specification</th>
+                                <th>Top Load Washer</th>
+                                <th>Front Load Washer</th>
+                            </tr>
+                            <tr>
+                                <td>Maximum Total Hose Length</td>
+                                <td colspan="2">8 feet (2.5 meters) - manufacturer recommendation</td>
+                            </tr>
+                            <tr>
+                                <td>Minimum Drain Height</td>
+                                <td>30" from floor</td>
+                                <td>24" from floor</td>
+                            </tr>
+                            <tr>
+                                <td>Maximum Drain Height</td>
+                                <td colspan="2">8 feet (96")</td>
+                            </tr>
+                            <tr>
+                                <td>Standpipe Height</td>
+                                <td colspan="2">40-100 cm (16-39 inches)</td>
+                            </tr>
+                            <tr>
+                                <td>Hose Insertion Depth</td>
+                                <td>Max 5" into drain</td>
+                                <td>Max 7" into drain</td>
+                            </tr>
+                        </table>
+                        <div class="warning-box" style="margin-top: 15px;">
+                            <strong>Important:</strong> Extending drain hose too far can damage the pump. Keep hose as short as practical. Maintain 1/4" per foot downward slope.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Preventing Siphoning</h3>
+                        <div class="info-box">
+                            <strong>High Loop Required:</strong> The drain hose must incorporate a "high loop" where the top of the hose is elevated higher than the water level inside the washer tub. This prevents dirty water from siphoning back into the machine.
+                            <br><br>
+                            <strong>Air Gap:</strong> Don't insert drain hose more than 6" into standpipe - this air gap breaks the vacuum that causes siphoning.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">How to Extend Drain Hose</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Turn off utilities</strong> - Unplug power, shut off water valves, have bucket ready for residual water.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Disconnect existing hose</strong> - Remove drain hose from standpipe or utility sink.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Get proper extension hose</strong> - Use corrugated, flexible plastic hose designed for washers. Don't mix materials (rubber/PVC/steel).</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Connect with coupler</strong> - Insert barbed plastic coupler into both hose ends.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Secure with clamps</strong> - Place hose clamps over each joint, tighten with screwdriver until snug.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">6</div>
+                                <div><strong>Route with proper slope</strong> - Maintain 1/4" drop per foot, avoid kinks, secure to wall if needed.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">7</div>
+                                <div><strong>Create high loop</strong> - Secure highest point of hose above water level in washer.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">8</div>
+                                <div><strong>Insert into drain</strong> - Place end into standpipe (max 5-7" deep depending on washer type).</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">9</div>
+                                <div><strong>Test before finalizing</strong> - Run a test cycle BEFORE moving furniture back. Check all joints for leaks.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Electrical Considerations</h3>
+                        <div class="sub-section">
+                            <h4>Standard Washer Requirements</h4>
+                            <table class="spec-table">
+                                <tr>
+                                    <th>Specification</th>
+                                    <th>Typical Requirement</th>
+                                </tr>
+                                <tr>
+                                    <td>Voltage</td>
+                                    <td>120V (standard outlet)</td>
+                                </tr>
+                                <tr>
+                                    <td>Circuit</td>
+                                    <td>Dedicated 20-amp circuit recommended</td>
+                                </tr>
+                                <tr>
+                                    <td>Outlet Type</td>
+                                    <td>3-prong grounded (GFCI recommended in basement)</td>
+                                </tr>
+                                <tr>
+                                    <td>Extension Cords</td>
+                                    <td>NOT recommended - use proper outlet placement</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="danger-box" style="margin-top: 15px;">
+                            <strong>Important:</strong> If you need to add a new outlet or extend electrical, consult a licensed electrician. Basement outlets near water should be GFCI protected per code.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Water Supply Extension</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Braided stainless steel hoses</strong> - Best for supply lines, burst-resistant</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Proper fittings</strong> - Use brass or stainless fittings, not plastic</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Shutoff valves</strong> - Install quarter-turn ball valves at new location</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="checkbox"></div>
+                                <div><strong>Test for leaks</strong> - Turn on water slowly, check all connections</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Moving the Washer Safely</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Empty the washer completely</strong> - Run a spin cycle to remove residual water.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Disconnect all utilities</strong> - Unplug, shut off water, disconnect hoses with bucket ready.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Secure the drum</strong> - If moving long distance, install shipping bolts or stuffing to prevent drum damage.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Use appliance dolly</strong> - Never drag or tilt excessively. Keep as upright as possible.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Move slowly</strong> - Watch for cord snags, hose kinks, and obstacles.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">6</div>
+                                <div><strong>Level the washer</strong> - Adjust feet so washer doesn't rock. Use a level.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">7</div>
+                                <div><strong>Remove shipping bolts</strong> - If installed, remove before use or drum will be damaged.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Code Considerations</h3>
+                        <div class="info-box">
+                            <strong>Local Codes May Require:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li>Dedicated 20-amp circuit for washer</li>
+                                <li>GFCI protection for basement outlets</li>
+                                <li>Proper standpipe dimensions (typically 2" diameter, 18-30" above trap)</li>
+                                <li>P-trap on drain line</li>
+                                <li>Permit for plumbing/electrical modifications</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Materials Needed</h3>
+                        <table class="spec-table">
+                            <tr>
+                                <th>Item</th>
+                                <th>Estimated Cost</th>
+                            </tr>
+                            <tr>
+                                <td>Drain hose extension kit</td>
+                                <td>$15-30</td>
+                            </tr>
+                            <tr>
+                                <td>Braided supply hoses (pair)</td>
+                                <td>$20-40</td>
+                            </tr>
+                            <tr>
+                                <td>Hose clamps (pack)</td>
+                                <td>$5-10</td>
+                            </tr>
+                            <tr>
+                                <td>Barbed coupler</td>
+                                <td>$5-10</td>
+                            </tr>
+                            <tr>
+                                <td>Quarter-turn valves (pair)</td>
+                                <td>$20-40</td>
+                            </tr>
+                            <tr>
+                                <td>Appliance dolly rental</td>
+                                <td>$20-30/day</td>
+                            </tr>
+                        </table>
+                        <div class="cost-estimate">
+                            <strong>Estimated Total (DIY):</strong>
+                            <strong>$85-160</strong>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Tools Needed</h3>
+                        <div class="tools-grid">
+                            <div class="tool-item">Adjustable Wrench</div>
+                            <div class="tool-item">Pliers</div>
+                            <div class="tool-item">Screwdriver</div>
+                            <div class="tool-item">Level</div>
+                            <div class="tool-item">Appliance Dolly</div>
+                            <div class="tool-item">Bucket</div>
+                            <div class="tool-item">Towels</div>
+                            <div class="tool-item">Tape Measure</div>
+                            <div class="tool-item">Teflon Tape</div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Reference Links</h3>
+                        <ul class="parts-list">
+                            <li><a href="https://callduncan.com/washing-machine-drain-hose-extension/" target="_blank">Duncan Home Services - Drain Hose Extension Guide</a></li>
+                            <li><a href="https://www.howtolookatahouse.com/Blog/Entries/2018/6/what-is-the-maximum-length-for-a-washing-machine-drain-hose.html" target="_blank">Maximum Drain Hose Length Guide</a></li>
+                            <li><a href="https://www.familyhandyman.com/article/laundry-room-plumbing-code/" target="_blank">Family Handyman - Laundry Room Plumbing Codes</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Notes</h3>
+                        <textarea class="notes-area" placeholder="Add measurements, current layout notes, planned changes here..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function toggleProject(projectId) {
+            const card = document.getElementById(projectId);
+            card.classList.toggle('expanded');
+        }
+
+        function toggleCheck(element) {
+            element.classList.toggle('checked');
+            saveProgress();
+        }
+
+        function saveProgress() {
+            const checkedItems = [];
+            document.querySelectorAll('.checklist li.checked').forEach((item, index) => {
+                checkedItems.push(item.textContent.trim().substring(0, 50));
+            });
+            localStorage.setItem('homeProjectsProgress', JSON.stringify(checkedItems));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem('homeProjectsProgress');
+            if (saved) {
+                const checkedItems = JSON.parse(saved);
+                // This is a simple implementation - for full persistence,
+                // you'd want to use unique IDs for each checklist item
+            }
+        }
+
+        // Load notes from localStorage
+        document.querySelectorAll('.notes-area').forEach((textarea, index) => {
+            const savedNote = localStorage.getItem('projectNote_' + index);
+            if (savedNote) {
+                textarea.value = savedNote;
+            }
+            textarea.addEventListener('input', function() {
+                localStorage.setItem('projectNote_' + index, this.value);
+            });
+        });
+
+        // Auto-expand first project on load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProgress();
+        });
+    </script>
+</body>
+</html>
