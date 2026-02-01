@@ -406,9 +406,52 @@
             .project-header { padding: 15px; }
             .content-inner { padding: 15px; }
         }
+
+        .sync-indicator {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sync-synced {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .sync-syncing {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        .sync-offline {
+            background: rgba(255, 167, 0, 0.2);
+            color: #ffa500;
+            border: 1px solid rgba(255, 167, 0, 0.3);
+        }
+
+        .sync-error {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
     </style>
 </head>
 <body>
+    <div id="sync-indicator" class="sync-indicator sync-synced">Synced</div>
     <div class="container">
         <h1>Home Projects Guide</h1>
         <p class="subtitle">Interactive project planner with checklists and reference guides</p>
@@ -1398,6 +1441,20 @@
     </div>
 
     <script>
+        // Sync status indicator
+        let syncStatus = 'synced';
+        let pendingSync = null;
+
+        function showSyncStatus(status) {
+            const indicator = document.getElementById('sync-indicator');
+            if (!indicator) return;
+
+            indicator.className = 'sync-indicator sync-' + status;
+            indicator.textContent = status === 'syncing' ? 'Syncing...' :
+                                   status === 'synced' ? 'Synced' :
+                                   status === 'offline' ? 'Offline' : 'Error';
+        }
+
         function toggleProject(projectId) {
             const card = document.getElementById(projectId);
             card.classList.toggle('expanded');
@@ -1405,40 +1462,189 @@
 
         function toggleCheck(element) {
             element.classList.toggle('checked');
-            saveProgress();
+            const id = element.getAttribute('data-id');
+            const checked = element.classList.contains('checked');
+            saveChecklistItem(id, checked);
+            updateProjectStatus(element);
         }
 
-        function saveProgress() {
-            const checkedItems = [];
-            document.querySelectorAll('.checklist li.checked').forEach((item, index) => {
-                checkedItems.push(item.textContent.trim().substring(0, 50));
-            });
-            localStorage.setItem('homeProjectsProgress', JSON.stringify(checkedItems));
-        }
-
-        function loadProgress() {
-            const saved = localStorage.getItem('homeProjectsProgress');
-            if (saved) {
-                const checkedItems = JSON.parse(saved);
-                // This is a simple implementation - for full persistence,
-                // you'd want to use unique IDs for each checklist item
+        async function saveChecklistItem(id, checked) {
+            showSyncStatus('syncing');
+            try {
+                await fetch('/api/checklist/' + encodeURIComponent(id), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ checked })
+                });
+                showSyncStatus('synced');
+            } catch (error) {
+                console.error('Failed to save checklist item:', error);
+                showSyncStatus('offline');
+                // Fallback to localStorage
+                const local = JSON.parse(localStorage.getItem('checklist') || '{}');
+                local[id] = checked;
+                localStorage.setItem('checklist', JSON.stringify(local));
             }
         }
 
-        // Load notes from localStorage
-        document.querySelectorAll('.notes-area').forEach((textarea, index) => {
-            const savedNote = localStorage.getItem('projectNote_' + index);
-            if (savedNote) {
-                textarea.value = savedNote;
+        async function saveNote(id, content) {
+            showSyncStatus('syncing');
+            try {
+                await fetch('/api/notes/' + encodeURIComponent(id), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+                showSyncStatus('synced');
+            } catch (error) {
+                console.error('Failed to save note:', error);
+                showSyncStatus('offline');
+                // Fallback to localStorage
+                const local = JSON.parse(localStorage.getItem('notes') || '{}');
+                local[id] = content;
+                localStorage.setItem('notes', JSON.stringify(local));
             }
-            textarea.addEventListener('input', function() {
-                localStorage.setItem('projectNote_' + index, this.value);
+        }
+
+        function updateProjectStatus(checklistItem) {
+            const projectCard = checklistItem.closest('.project-card');
+            if (!projectCard) return;
+
+            const projectId = projectCard.id;
+            const allItems = projectCard.querySelectorAll('.checklist li[data-id]');
+            const checkedItems = projectCard.querySelectorAll('.checklist li.checked[data-id]');
+
+            let status = 'pending';
+            if (checkedItems.length === allItems.length && allItems.length > 0) {
+                status = 'complete';
+            } else if (checkedItems.length > 0) {
+                status = 'in-progress';
+            }
+
+            // Update overview status icon
+            const projectNum = projectId.replace('project', '');
+            const statusIcon = document.querySelector(`.progress-item:nth-child(${projectNum}) .status-icon`);
+            if (statusIcon) {
+                statusIcon.className = 'status-icon status-' + status;
+            }
+        }
+
+        async function loadProgress() {
+            showSyncStatus('syncing');
+            try {
+                const response = await fetch('/api/progress');
+                const data = await response.json();
+
+                // Apply checklist state
+                Object.entries(data.checklist).forEach(([id, checked]) => {
+                    const item = document.querySelector(`[data-id="${id}"]`);
+                    if (item) {
+                        if (checked) {
+                            item.classList.add('checked');
+                        } else {
+                            item.classList.remove('checked');
+                        }
+                    }
+                });
+
+                // Apply notes
+                Object.entries(data.notes).forEach(([id, content]) => {
+                    const textarea = document.querySelector(`[data-note-id="${id}"]`);
+                    if (textarea) {
+                        textarea.value = content;
+                    }
+                });
+
+                // Update all project statuses
+                document.querySelectorAll('.project-card').forEach(card => {
+                    const firstItem = card.querySelector('.checklist li[data-id]');
+                    if (firstItem) {
+                        updateProjectStatus(firstItem);
+                    }
+                });
+
+                showSyncStatus('synced');
+            } catch (error) {
+                console.error('Failed to load progress:', error);
+                showSyncStatus('offline');
+                // Try to load from localStorage as fallback
+                loadFromLocalStorage();
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const checklist = JSON.parse(localStorage.getItem('checklist') || '{}');
+            const notes = JSON.parse(localStorage.getItem('notes') || '{}');
+
+            Object.entries(checklist).forEach(([id, checked]) => {
+                const item = document.querySelector(`[data-id="${id}"]`);
+                if (item && checked) {
+                    item.classList.add('checked');
+                }
             });
+
+            Object.entries(notes).forEach(([id, content]) => {
+                const textarea = document.querySelector(`[data-note-id="${id}"]`);
+                if (textarea) {
+                    textarea.value = content;
+                }
+            });
+        }
+
+        // Assign unique IDs to all checklist items and notes
+        function initializeIds() {
+            document.querySelectorAll('.project-card').forEach((project, pIndex) => {
+                project.querySelectorAll('.checklist li').forEach((item, iIndex) => {
+                    if (!item.getAttribute('data-id')) {
+                        item.setAttribute('data-id', `p${pIndex + 1}-item${iIndex + 1}`);
+                    }
+                });
+                project.querySelectorAll('.notes-area').forEach((textarea, nIndex) => {
+                    if (!textarea.getAttribute('data-note-id')) {
+                        textarea.setAttribute('data-note-id', `p${pIndex + 1}-note${nIndex + 1}`);
+                    }
+                });
+            });
+        }
+
+        // Debounce helper for notes
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeIds();
+
+            // Set up note saving with debounce
+            document.querySelectorAll('.notes-area').forEach((textarea) => {
+                const noteId = textarea.getAttribute('data-note-id');
+                const debouncedSave = debounce((content) => {
+                    saveNote(noteId, content);
+                }, 1000);
+
+                textarea.addEventListener('input', function() {
+                    debouncedSave(this.value);
+                });
+            });
+
+            // Load saved progress
+            loadProgress();
         });
 
-        // Auto-expand first project on load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProgress();
+        // Refresh on visibility change (when switching back to tab)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadProgress();
+            }
         });
     </script>
 </body>

@@ -1,4 +1,4 @@
-# fly.toml app configuration file generated for home-projects-tracker on 2026-02-01T12:14:06-05:00
+# fly.toml app configuration file generated for home-projects-tracker
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
@@ -7,6 +7,13 @@ app = 'home-projects-tracker'
 primary_region = 'ord'
 
 [build]
+
+[env]
+  DATA_DIR = '/data'
+
+[mounts]
+  source = 'projects_data'
+  destination = '/data'
 
 [http_service]
   internal_port = 3000
@@ -20,4 +27,3 @@ primary_region = 'ord'
   memory = '256mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256
