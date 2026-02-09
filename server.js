@@ -12,7 +12,8 @@ const slotNames = {
   'p2-humidifier': 'furnace-humidifier',
   'p3-sharkbite-connection': 'fridge-sharkbite-connection',
   'p4-laundry-current': 'laundry-room-current',
-  'p4-laundry-planned': 'laundry-room-planned'
+  'p4-laundry-planned': 'laundry-room-planned',
+  'p5-sink-faucet': 'bathroom-sink-faucet'
 };
 
 const projectNames = {
@@ -20,7 +21,8 @@ const projectNames = {
   'p2-humidifier': 'Project2-Humidifier',
   'p3-sharkbite-connection': 'Project3-FridgeWater',
   'p4-laundry-current': 'Project4-LaundryRoom',
-  'p4-laundry-planned': 'Project4-LaundryRoom'
+  'p4-laundry-planned': 'Project4-LaundryRoom',
+  'p5-sink-faucet': 'Project5-BathroomSink'
 };
 
 const app = express();

@@ -661,6 +661,10 @@
                     <div class="status-icon status-pending">4</div>
                     <span>Laundry Room Layout</span>
                 </div>
+                <div class="progress-item">
+                    <div class="status-icon status-pending">5</div>
+                    <span>Bathroom Sink Faucet</span>
+                </div>
             </div>
         </div>
 
@@ -1242,6 +1246,26 @@
                     </div>
 
                     <div class="section">
+                        <h3 class="section-title">Installation Status Notes</h3>
+                        <div class="warning-box">
+                            <strong>PAUSED - Water Situation:</strong><br>
+                            &bull; BrassCraft shutoff valve on copper humidifier supply line has been turned OFF<br>
+                            &bull; Water was still coming out the copper pipe after valve was turned off — likely residual water draining from above the valve, or the 32-year-old valve doesn't seal 100%<br>
+                            &bull; House water has NOT been turned back on yet<br>
+                            &bull; <strong>Before turning water back on:</strong> Cap the open copper pipe end with a compression cap fitting, OR connect the new AprilAire solenoid valve first
+                        </div>
+                        <div class="warning-box" style="margin-top: 10px;">
+                            <strong>Vertical Fit Issue:</strong><br>
+                            &bull; AprilAire 700 may not fit vertically on the supply plenum — need to measure total available vertical space on the plenum face<br>
+                            &bull; Horizontal/sideways mounting is NOT recommended (uneven water distribution, drainage issues, reduced performance)<br>
+                            &bull; Need to investigate: what is limiting vertical clearance (duct branch, seam, ceiling joists?) and if there's an alternative mounting location
+                        </div>
+                        <div class="info-box" style="margin-top: 10px;">
+                            <strong>Installation template:</strong> Missing from box. Printable PDF available at electronicaircleaners.com — print at 100% actual size, no scaling.
+                        </div>
+                    </div>
+
+                    <div class="section">
                         <h3 class="section-title">Your Notes</h3>
                         <textarea class="notes-area" placeholder="Add your notes, purchase decisions, or installation observations here..."></textarea>
                     </div>
@@ -1796,6 +1820,101 @@
 
     </div>
 
+        <!-- PROJECT 5: BATHROOM SINK -->
+        <div class="project-card" id="project5">
+            <div class="project-header" onclick="toggleProject('project5')">
+                <div class="project-title">
+                    <div class="project-number">5</div>
+                    <div>
+                        <div class="project-name">Bathroom Sink Faucet Leak</div>
+                        <small style="color: #888;">Right handle won't fully close</small>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span class="difficulty-badge difficulty-easy">Easy</span>
+                    <span class="expand-icon">▼</span>
+                </div>
+            </div>
+            <div class="project-content">
+                <div class="content-inner">
+
+                    <div class="section">
+                        <h3 class="section-title">Problem Description</h3>
+                        <div class="warning-box">
+                            <strong>Issue:</strong> The right-hand handle on the bathroom sink faucet stays slightly open, causing a constant drip/leak. Tightening the handle screw has not resolved the issue.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Faucet Details</h3>
+                        <div class="info-box">
+                            <strong>Type:</strong> 4-inch centerset, two-handle bathroom faucet<br>
+                            <strong>Finish:</strong> Brushed nickel<br>
+                            <strong>Style:</strong> Lever handles with conical spout<br>
+                            <strong>Affected Handle:</strong> Right side (likely hot water)
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Photos</h3>
+                        <div class="photo-upload" data-slot="p5-sink-faucet">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload sink / faucet photos</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
+                            <div class="photo-gallery"></div>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Likely Cause</h3>
+                        <div class="info-box">
+                            <strong>Worn cartridge valve.</strong> Since tightening the handle screw didn't help, the issue is almost certainly inside the valve body — not the handle itself. Two-handle faucets like this use a cartridge (or sometimes a ball/ceramic disc valve) that wears out over time. The internal seals degrade and can no longer fully stop water flow.
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Repair Steps</h3>
+                        <ul class="checklist">
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">1</div>
+                                <div><strong>Identify the faucet brand/model</strong> — Check under the sink or on the faucet body for brand markings. Common brands: Moen, Delta, Pfister, Glacier Bay.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">2</div>
+                                <div><strong>Shut off water supply</strong> — Turn off the hot water valve under the sink (right-side valve).</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">3</div>
+                                <div><strong>Remove the handle</strong> — Pop off the decorative cap, remove the screw, and pull the handle off.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">4</div>
+                                <div><strong>Remove and replace the cartridge</strong> — Unscrew the retaining nut, pull out the old cartridge, and install a matching replacement.</div>
+                            </li>
+                            <li onclick="toggleCheck(this)">
+                                <div class="step-number">5</div>
+                                <div><strong>Reassemble and test</strong> — Put handle back on, turn water on, verify no leak.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Your Notes</h3>
+                        <textarea class="notes-area" placeholder="Add your notes here..."></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <!-- Photo Modal for fullscreen view -->
     <div id="photo-modal" class="photo-modal">
         <button class="photo-modal-close" onclick="closePhotoModal()">&times;</button>
@@ -2195,7 +2314,8 @@
                 'p2-humidifier': 'Humidifier photos',
                 'p3-sharkbite-connection': 'SharkBite photos',
                 'p4-laundry-current': 'Laundry room photos',
-                'p4-laundry-planned': 'Laundry plan photos'
+                'p4-laundry-planned': 'Laundry plan photos',
+                'p5-sink-faucet': 'Sink faucet photos'
             };
 
             // Show downloading state
