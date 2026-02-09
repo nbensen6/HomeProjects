@@ -1036,6 +1036,18 @@
                         <div class="warning-box">
                             <strong>Issue:</strong> Copper piping shakes when running the humidifier. This is caused by a <strong>worn solenoid valve</strong> that's 32 years old. The internal seal has degraded, causing the valve to chatter/pulse and create pressure waves in the pipe.
                         </div>
+                        <div class="photo-upload" data-slot="p2-humidifier">
+                            <label class="photo-upload-label">
+                                <span class="photo-upload-icon">+</span>
+                                <span class="photo-upload-text">Upload humidifier / furnace setup photos</span>
+                                <span class="photo-upload-hint">Tap to select multiple or drag & drop</span>
+                                <input type="file" class="photo-upload-input" accept="image/*" multiple>
+                            </label>
+                            <div class="upload-progress"><div class="upload-progress-bar"></div></div>
+                            <div class="upload-count"></div>
+                            <div class="photo-gallery"></div>
+                            <button class="download-claude-btn" onclick="downloadForClaude(this)">Download for Claude</button>
+                        </div>
                     </div>
 
                     <div class="section">
@@ -2180,6 +2192,7 @@
             // Get friendly name for the download
             const descriptions = {
                 'p1-dishwasher-latch': 'Dishwasher photos',
+                'p2-humidifier': 'Humidifier photos',
                 'p3-sharkbite-connection': 'SharkBite photos',
                 'p4-laundry-current': 'Laundry room photos',
                 'p4-laundry-planned': 'Laundry plan photos'

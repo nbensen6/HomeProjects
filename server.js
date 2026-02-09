@@ -9,6 +9,7 @@ const archiver = require('archiver');
 // Friendly names for photo slots
 const slotNames = {
   'p1-dishwasher-latch': 'dishwasher-door-latch',
+  'p2-humidifier': 'furnace-humidifier',
   'p3-sharkbite-connection': 'fridge-sharkbite-connection',
   'p4-laundry-current': 'laundry-room-current',
   'p4-laundry-planned': 'laundry-room-planned'
@@ -16,6 +17,7 @@ const slotNames = {
 
 const projectNames = {
   'p1-dishwasher-latch': 'Project1-Dishwasher',
+  'p2-humidifier': 'Project2-Humidifier',
   'p3-sharkbite-connection': 'Project3-FridgeWater',
   'p4-laundry-current': 'Project4-LaundryRoom',
   'p4-laundry-planned': 'Project4-LaundryRoom'
